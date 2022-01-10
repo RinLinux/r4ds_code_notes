@@ -172,7 +172,7 @@ library(aRtsy)
 # 用R这么画基因结构图
 # https://zhuanlan.zhihu.com/p/83092046
 
-install.packages("gggenes")
+# install.packages("gggenes")
 library(gggenes)
 head(example_genes)
 
@@ -203,3 +203,70 @@ ggplot(example_genes, aes(xmin = start, xmax = end, y = molecule)) +
                      aes(xmin = start, xmax = end, y = molecule, fill = gene,
                          xsubmin = from, xsubmax = to), color="black", alpha=.7) +
   theme_genes()
+
+# geom_bar默认位置调整是geom_stack
+
+# 位置调整：fill
+cols = hue_pal()(8)
+p_fill <- ggplot(data=diamonds) + 
+  geom_bar(mapping = aes(x=cut,fill=clarity),position = 'fill') + 
+  scale_fill_manual(values = cols) +
+  theme_bw()
+
+# 位置调整：dodge
+library(scales)
+library(patchwork)
+cols = hue_pal()(8)
+p_dodge <- ggplot(data=diamonds) + 
+  geom_bar(mapping = aes(x=cut,fill=clarity),position = 'dodge') + 
+  scale_fill_manual(values = cols) +
+  theme_bw()
+
+p_fill + p_dodge
+
+# 位置调整：jitter
+# 增加随机扰动，将重叠的点分散开来
+ggplot(data=mpg) + 
+  geom_point(mapping = aes(x=displ,y=hwy),
+             position = 'jitter')
+
+ggplot(data=mpg) + 
+  geom_point(mapping = aes(x=displ,y=hwy),position = 'count')
+
+
+# 坐标系
+
+## coord_flip()交换x轴和y轴
+
+p <- ggplot(data = mpg,mapping = aes(x=class,y=hwy)) + 
+  geom_boxplot()
+
+p + coord_flip()
+
+## coord_polar()使用极坐标系
+
+bar <- ggplot(data=diamonds,mapping=aes(x=cut,fill=cut)) + 
+  geom_bar(show.legend = F,width = 1) + 
+  theme(aspect.ratio = 1) +
+  labs(x=NULL,y=NULL)
+
+bar + coord_flip()
+blank_theme <- theme_minimal()+
+  theme(
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_blank(),
+    panel.border = element_blank(),
+    panel.grid=element_blank(),
+    axis.ticks = element_blank(),
+    plot.title=element_text(size=14, face="bold")
+  )
+bar + coord_polar() + blank_theme + scale_fill_manual(values=hue_pal()(5))
+# 使用coord_polar将堆叠式条形图转换成饼图
+ggplot(data=diamonds,mapping = aes(x='cut',fill=cut)) + 
+  geom_bar(stat="count",width = 1,position = 'stack') +
+  coord_polar("y", start=0) + 
+  blank_theme + 
+  scale_fill_manual(values=hue_pal()(5)) +
+  geom_text(stat="count",aes(label = scales::percent(..count../50)), size=3, position=position_stack(vjust = 0.5))
