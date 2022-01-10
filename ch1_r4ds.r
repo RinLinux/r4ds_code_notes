@@ -148,3 +148,22 @@ p_out <- p + p1 + p3 +
 # 图片保存使用ggsave  
 ggsave(filename = "out.png",plot=p_out,width = 25,height = 16,
        units = 'cm',dpi = 600)
+
+SYMBOL <- c("EEF1A1","EEF1A1","HSP")
+FC <- c(10.266615,9.228078,8.26)
+P.value <- c(6.42e-07,4.31e-07,4.12e-07)
+rwl <- data.frame()
+
+library(tidyverse)
+qz <- read.csv("qz.csv")
+
+uniq_qz <- qz %>% group_by(Symbol) %>% 
+  summarise(logFC_=median(logFC),p_=median(p))
+
+qz <- read.csv("qz.csv")
+attach(qz)
+aggregate(qz[2:3],by=list(Symbol),FUN=median,na.rm=TRUE)
+
+# 使用aRtsy包画艺术图
+devtools::install_github("koenderks/aRtsy")
+library(aRtsy)
