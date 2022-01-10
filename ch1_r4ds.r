@@ -167,3 +167,39 @@ aggregate(qz[2:3],by=list(Symbol),FUN=median,na.rm=TRUE)
 # 使用aRtsy包画艺术图
 devtools::install_github("koenderks/aRtsy")
 library(aRtsy)
+
+
+# 用R这么画基因结构图
+# https://zhuanlan.zhihu.com/p/83092046
+
+install.packages("gggenes")
+library(gggenes)
+head(example_genes)
+
+ggplot(example_genes, aes(xmin = start, xmax = end, 
+                          y = molecule, fill = gene)) +
+  geom_gene_arrow() +
+  facet_wrap(~ molecule, scales = "free", ncol = 1) +
+  scale_fill_brewer(palette = "Set3") +
+  theme_genes()
+
+
+
+ggplot(example_genes, aes(xmin = start, xmax = end, 
+                          y = molecule, fill = gene, label = gene, forward = orientation)) +
+  geom_gene_arrow() +
+  facet_wrap(~ molecule, scales = "free", ncol = 1) +
+  scale_fill_brewer(palette = "Set3") +
+  theme_genes() +
+  geom_gene_label(align = "left")
+
+# 展示展现基因结构域特征或者比对信息
+# 需要另外的信息example_subgenes
+head(example_subgenes)
+ggplot(example_genes, aes(xmin = start, xmax = end, y = molecule)) +
+  facet_wrap(~ molecule, scales = "free", ncol = 1) +
+  geom_gene_arrow(fill = "white") +
+  geom_subgene_arrow(data = example_subgenes,
+                     aes(xmin = start, xmax = end, y = molecule, fill = gene,
+                         xsubmin = from, xsubmax = to), color="black", alpha=.7) +
+  theme_genes()
